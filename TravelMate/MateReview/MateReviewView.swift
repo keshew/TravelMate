@@ -9,11 +9,19 @@ struct ReviewModel:  Identifiable {
 struct MateReviewView: View {
     @StateObject var mateReviewModel =  MateReviewViewModel()
     @State var text = ""
-    
+    @Binding var model: PlaceModel
     @State var first = [ReviewModel(text: "Great service"), ReviewModel(text: "Clean rooms")]
     @State var second = [ReviewModel(text: "Good location"), ReviewModel(text: "Value for money")]
     @State var third = [ReviewModel(text: "Comfortable beds")]
-    
+    @State private var savedModels: [String] = []
+    @State private var showAlert = false
+    @Environment(\.presentationMode) var presentationMode
+    @State private var rating = 0
+    @State private var rating2 = 0
+    @State private var rating3 = 0
+    @State private var rating4 = 0
+    @State private var rating5 = 0
+    @State var showAlertSuc = false
     var body: some View {
         ZStack {
             ZStack(alignment: .top) {
@@ -27,7 +35,8 @@ struct MateReviewView: View {
             VStack {
                 HStack(spacing: 12) {
                     Button(action: {
-                        
+                        presentationMode.wrappedValue.dismiss()
+                        NotificationCenter.default.post(name: Notification.Name("UserResourcesUpdated"), object: nil)
                     }) {
                         Image(systemName: "arrow.left")
                             .resizable()
@@ -49,16 +58,16 @@ struct MateReviewView: View {
                             .fill(Color(red: 31/255, green: 58/255, blue: 138/255).opacity(0.3))
                             .overlay {
                                 HStack(spacing: 12) {
-                                    Image(.item1)
+                                    Image(model.imageName)
                                         .resizable()
                                         .frame(width: 64, height: 64)
                                         .cornerRadius(12)
                                     
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("Grand Plaza Hotel")
+                                        Text(model.name)
                                             .FontSemiBold(size: 18)
                                         
-                                        Text("Luxury Hotel • Downtown")
+                                        Text(model.type)
                                             .FontRegular(size: 14, color: Color(red: 209/255, green: 213/255, blue: 219/255))
                                         
                                         HStack {
@@ -67,7 +76,10 @@ struct MateReviewView: View {
                                                 .foregroundStyle(Color(red: 250/255, green: 204/255, blue: 23/255))
                                                 .frame(width: 14, height: 14)
                                             
-                                            Text("4.8 • 2,847 reviews")
+                                            Text(String(format: "%.1f", model.rating))
+                                                .FontSemiBold(size: 16)
+                                            
+                                            Text("\(model.reviewsCount) reviews")
                                                 .FontRegular(size: 14, color: Color(red: 209/255, green: 213/255, blue: 219/255))
                                         }
                                     }
@@ -98,7 +110,7 @@ struct MateReviewView: View {
                                 HStack(spacing: 8) {
                                     ForEach(0..<5, id: \.self) { index in
                                         Button(action: {
-                                            
+                                            rating = index + 1
                                         }) {
                                             ZStack {
                                                 Circle()
@@ -112,7 +124,11 @@ struct MateReviewView: View {
                                                 Image(systemName: "star.fill")
                                                     .resizable()
                                                     .frame(width: 27, height: 24)
-                                                    .foregroundStyle(Color(red: 156/255, green: 163/255, blue: 175/255))
+                                                    .foregroundStyle(
+                                                                      index < rating ?
+                                                                      Color(red: 250/255, green: 204/255, blue: 23/255) :
+                                                                      Color(red: 156/255, green: 163/255, blue: 175/255)
+                                                                  )
                                             }
                                         }
                                     }
@@ -244,23 +260,6 @@ struct MateReviewView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Add photos")
-                                    .FontSemiBold(size: 18)
-                                
-                                Button(action: {
-                                    
-                                }) {
-                                    Image(.addPhoto)
-                                        .resizable()
-                                        .frame(width: 106, height: 106)
-                                }
-                                
-                                Text("Help other travelers by sharing photos of your\nexperience")
-                                    .FontRegular(size: 12, color: Color(red: 156/255, green: 163/255, blue: 175/255))
-                            }
-                            .padding(.leading)
-                            
-                            VStack(alignment: .leading, spacing: 12) {
                                 Text("Rate specific aspects")
                                     .FontSemiBold(size: 18)
                                 
@@ -272,10 +271,18 @@ struct MateReviewView: View {
                                     
                                     HStack(spacing: 5) {
                                         ForEach(0..<5, id: \.self) { index in
-                                            Image(systemName: "star.fill")
-                                                .resizable()
-                                                .frame(width: 15, height: 15)
-                                                .foregroundStyle(Color(red: 156/255, green: 163/255, blue: 175/255))
+                                            Button(action: {
+                                                rating2 = index + 1
+                                            }) {
+                                                Image(systemName: "star.fill")
+                                                    .resizable()
+                                                    .frame(width: 15, height: 15)
+                                                    .foregroundStyle(
+                                                                      index < rating2 ?
+                                                                      Color(red: 250/255, green: 204/255, blue: 23/255) :
+                                                                      Color(red: 156/255, green: 163/255, blue: 175/255)
+                                                                  )
+                                            }
                                         }
                                     }
                                 }
@@ -288,10 +295,18 @@ struct MateReviewView: View {
                                     
                                     HStack(spacing: 5) {
                                         ForEach(0..<5, id: \.self) { index in
-                                            Image(systemName: "star.fill")
-                                                .resizable()
-                                                .frame(width: 15, height: 15)
-                                                .foregroundStyle(Color(red: 156/255, green: 163/255, blue: 175/255))
+                                            Button(action: {
+                                                rating3 = index + 1
+                                            }) {
+                                                Image(systemName: "star.fill")
+                                                    .resizable()
+                                                    .frame(width: 15, height: 15)
+                                                    .foregroundStyle(
+                                                                      index < rating3 ?
+                                                                      Color(red: 250/255, green: 204/255, blue: 23/255) :
+                                                                      Color(red: 156/255, green: 163/255, blue: 175/255)
+                                                                  )
+                                            }
                                         }
                                     }
                                 }
@@ -304,10 +319,18 @@ struct MateReviewView: View {
                                     
                                     HStack(spacing: 5) {
                                         ForEach(0..<5, id: \.self) { index in
-                                            Image(systemName: "star.fill")
-                                                .resizable()
-                                                .frame(width: 15, height: 15)
-                                                .foregroundStyle(Color(red: 156/255, green: 163/255, blue: 175/255))
+                                            Button(action: {
+                                                rating4 = index + 1
+                                            }) {
+                                                Image(systemName: "star.fill")
+                                                    .resizable()
+                                                    .frame(width: 15, height: 15)
+                                                    .foregroundStyle(
+                                                                      index < rating4 ?
+                                                                      Color(red: 250/255, green: 204/255, blue: 23/255) :
+                                                                      Color(red: 156/255, green: 163/255, blue: 175/255)
+                                                                  )
+                                            }
                                         }
                                     }
                                 }
@@ -320,10 +343,18 @@ struct MateReviewView: View {
                                     
                                     HStack(spacing: 5) {
                                         ForEach(0..<5, id: \.self) { index in
-                                            Image(systemName: "star.fill")
-                                                .resizable()
-                                                .frame(width: 15, height: 15)
-                                                .foregroundStyle(Color(red: 156/255, green: 163/255, blue: 175/255))
+                                            Button(action: {
+                                                rating5 = index + 1
+                                            }) {
+                                                Image(systemName: "star.fill")
+                                                    .resizable()
+                                                    .frame(width: 15, height: 15)
+                                                    .foregroundStyle(
+                                                                      index < rating5 ?
+                                                                      Color(red: 250/255, green: 204/255, blue: 23/255) :
+                                                                      Color(red: 156/255, green: 163/255, blue: 175/255)
+                                                                  )
+                                            }
                                         }
                                     }
                                 }
@@ -331,10 +362,19 @@ struct MateReviewView: View {
                             .padding(.horizontal)
                             
                             Button(action: {
-                                
+                                if rating > 0 {
+                                     if !savedModels.contains(model.name) {
+                                         savedModels.append(model.name)
+                                         addModelToUserDefaults(newModel: model.name)
+                                         showAlertSuc = true
+                                         NotificationCenter.default.post(name: Notification.Name("UserResourcesUpdated"), object: nil)
+                                     }
+                                 } else {
+                                     showAlert = true
+                                 }
                             }) {
                                 Rectangle()
-                                    .fill(1 != 1 ? Color(red: 59/255, green: 130/255, blue: 246/255) : Color(red: 75/255, green: 85/255, blue: 99/255))
+                                    .fill(rating > 0 ? Color(red: 59/255, green: 130/255, blue: 246/255) : Color(red: 75/255, green: 85/255, blue: 99/255))
                                     .overlay {
                                         Text("Submit Review")
                                             .FontSemiBold(size: 16)
@@ -343,7 +383,13 @@ struct MateReviewView: View {
                                     .cornerRadius(12)
                             }
                             .padding(.horizontal)
+                            .alert("Please fill ratings", isPresented: $showAlert) {
+                                 Button("OK", role: .cancel) { }
+                             }
                             
+                            .alert("Successfully saved!", isPresented: $showAlertSuc) {
+                                 Button("OK", role: .cancel) { }
+                             }
                             Color.clear.frame(height: 20)
                         }
                         .padding(.top, 20)
@@ -352,10 +398,53 @@ struct MateReviewView: View {
             }
         }
     }
+    
+    func addModelToUserDefaults(newModel: String) {
+        var savedModels = UserDefaults.standard.stringArray(forKey: "savedModels") ?? []
+        
+        savedModels.append(newModel)
+        
+        UserDefaults.standard.set(savedModels, forKey: "savedModels")
+    }
+
+
+    func loadModelsFromUserDefaults() {
+        savedModels = UserDefaults.standard.stringArray(forKey: "savedModels") ?? []
+    }
 }
 
 #Preview {
-    MateReviewView()
+    MateReviewView(model: .constant(PlaceModel(
+        imageName: "item1",
+        miniImage: "fil4",
+        type: "Casino Inside",
+        isFavorite: false,
+        name: "Golden Palace Resort",
+        rating: 4.9,
+        starsLit: 5,
+        descriptionFull: "Luxury casino resort with world-class gaming, premium spa services, and fine dining restaurants.",
+        descriptionShort: "World-class gaming, premium spa, top dining",
+        features: ["fil4":"Casino", "amen1":"Pool", "amen2":"Spa", "amen3":"Restaurant"],
+        priceCurrent: 289,
+        priceOld: 385,
+        aboutPlace: "Experience the ultimate gaming destination at Royal Casino Resort. Our world-class casino features the latest slot machines, traditional table games, and exclusive VIP gaming areas. Combined with luxury accommodations, fine dining, and premium entertainment, we offer an unforgettable resort experience.",
+        discountAmount: 25,
+        address: "456 Casino Boulevard, Entertainment District",
+        typeInfo: "Casino Hotel & Resort",
+        amenities: [
+            Amenity(imageName: "casinoBlue", title: "24/7 Casino"),
+            Amenity(imageName: "amen1", title: "Pool"),
+            Amenity(imageName: "amen2", title: "Spa"),
+            Amenity(imageName: "amen3", title: "Restaurant"),
+            Amenity(imageName: "fil5", title: "Parking"),
+            Amenity(imageName: "fil6", title: "Gym")
+        ],
+        reviewsCount: 2156,
+        ratingThree: 5,
+        ratingFour: 24,
+        ratingFive: 68,
+        additionalImages: ["mrPhts1", "mrPhts2", "mrPhts3", "mrPhts4"]
+    )))
 }
 
 struct CustomTextView: View {

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct MateProfileView: View {
     @StateObject var mateProfileModel =  MateProfileViewModel()
+    @StateObject var bookingStore = BookingStore()
+    @State private var showClearDataAlert = false
 
     var body: some View {
         ZStack {
@@ -161,7 +163,7 @@ struct MateProfileView: View {
                                 }
                                 
                                 Button(action: {
-                                    
+                                    showClearDataAlert = true
                                 }) {
                                     Rectangle()
                                         .fill(Color(red: 14/255, green: 23/255, blue: 45/255))
@@ -197,6 +199,12 @@ struct MateProfileView: View {
                                         }
                                         .frame(height: 78)
                                         .cornerRadius(12)
+                                }
+                                .alert("Are you sure you want to delete all data?", isPresented: $showClearDataAlert) {
+                                    Button("Delete", role: .destructive) {
+                                        bookingStore.clearAllBookings()
+                                    }
+                                    Button("Cancel", role: .cancel) {}
                                 }
                             }
                             

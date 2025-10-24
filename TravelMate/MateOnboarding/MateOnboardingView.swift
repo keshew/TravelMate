@@ -13,7 +13,7 @@ struct MateOnboardingView: View {
                Onb(img: "onb2", title: "AI-Powered Search", desc: "Find perfect venues with smart recommendations"),
                Onb(img: "onb3", title: "Interactive Maps", desc: "Explore locations with detailed venue information"),
                Onb(img: "onb4", title: "Premium Experiences", desc: "Access exclusive casino hotels and entertainment")]
-    
+    @State var isTab = false
     var body: some View {
         ZStack {
             Color(red: 12/255, green: 22/255, blue: 49/255).ignoresSafeArea()
@@ -40,6 +40,8 @@ struct MateOnboardingView: View {
                             Text("Discover luxury hotels with world-\nclass casinos, entertainment, and unforgettable experiences")
                                 .FontRegular(size: 18)
                                 .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                            
                         } else {
                             Rectangle()
                                 .fill(Color(red: 35/255, green: 45/255, blue: 70/255))
@@ -94,7 +96,7 @@ struct MateOnboardingView: View {
                                         currentIndex += 1
                                     }
                                 } else {
-                                    
+                                    isTab = true
                                 }
                             }) {
                                 Rectangle()
@@ -123,14 +125,17 @@ struct MateOnboardingView: View {
                                     .frame(height: 60)
                                     .cornerRadius(12)
                             }
-                            .opacity(currentIndex == 0 ? 1 : 0)
-                            .disabled(currentIndex != 0)
+                            .opacity(0)
+                            .disabled(true)
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 24)
                     }
                 }
             }
+        }
+        .fullScreenCover(isPresented: $isTab) {
+            MateTabBarView()
         }
     }
 }
